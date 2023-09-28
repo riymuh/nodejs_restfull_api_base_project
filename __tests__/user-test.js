@@ -35,4 +35,21 @@ describe("POST /api/users", () => {
     expect(result.status).toBe(400);
     expect(result.body.errros).toBeDefined;
   });
+
+  it("should reject if username already used", async () => {
+    let result = await supertest(web).post("/api/users").send({
+      username: "riymuh",
+      password: "password",
+      name: "riyadh muhammad",
+    });
+
+    result = await supertest(web).post("/api/users").send({
+      username: "riymuh",
+      password: "password",
+      name: "riyadh muhammad",
+    });
+
+    expect(result.status).toBe(400);
+    expect(result.body.errros).toBeDefined;
+  });
 });
