@@ -2,7 +2,7 @@
   "name": "belajar-nodejs-restfull-api",
   "version": "1.0.0",
   "description": "belajar node js restfull api",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "jest -i"
   },

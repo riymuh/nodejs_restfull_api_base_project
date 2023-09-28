@@ -1,13 +1,13 @@
 import { validate } from "../validation/validation.js";
 import { registerUserValidation } from "../validation/user-validation.js";
-import { PrismaClient } from "@prisma/client";
+import { prismaClient } from "../application/database.js";
 import { ResponseError } from "../error/response-error.js";
 import bcrypt from "bcrypt";
 
 const register = async (request) => {
   const user = validate(registerUserValidation, request);
 
-  const countUser = await PrismaClient.user.count({
+  const countUser = await prismaClient.user.count({
     where: {
       username: user.username,
     },
@@ -19,15 +19,13 @@ const register = async (request) => {
 
   user.password = await bcrypt.hash(user.password, 10);
 
-  const result = PrismaClient.user.create({
+  return prismaClient.user.create({
     data: user,
     select: {
       username: true,
       name: true,
     },
   });
-
-  return result;
 };
 
 export default { register };
