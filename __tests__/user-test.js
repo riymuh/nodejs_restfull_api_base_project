@@ -1,35 +1,31 @@
 import supertest from "supertest";
 import { web } from "../src/application/web.js";
-import { prismaClient } from "../src/application/database.js";
 import { logger } from "../src/application/logging.js";
+import { removeTestUser, createTestUser } from "./test-util.js";
 
-describe("POST /api/users", () => {
+describe("POST /api/register", () => {
   afterEach(async () => {
-    await prismaClient.user.deleteMany({
-      where: {
-        username: "riymuh",
-      },
-    });
+    await removeTestUser();
   });
 
   it("should can register new user", async () => {
-    const result = await supertest(web).post("/api/users").send({
-      username: "riymuh",
+    const result = await supertest(web).post("/api/register").send({
+      username: "test",
       password: "password",
-      name: "riyadh muhammad",
+      name: "test",
     });
 
     expect(result.status).toBe(200);
-    expect(result.body.data.username).toBe("riymuh");
-    expect(result.body.data.name).toBe("riyadh muhammad");
+    expect(result.body.data.username).toBe("test");
+    expect(result.body.data.name).toBe("test");
     expect(result.body.data.password).toBeUndefined();
   });
 
   it("should reject if request is invalid", async () => {
-    const result = await supertest(web).post("/api/users").send({
-      username: "riymuh",
+    const result = await supertest(web).post("/api/register").send({
+      username: "test",
       password: "password",
-      //name: "riyadh muhammad",
+      //name: "test",
     });
 
     expect(result.status).toBe(400);
@@ -37,19 +33,41 @@ describe("POST /api/users", () => {
   });
 
   it("should reject if username already used", async () => {
-    let result = await supertest(web).post("/api/users").send({
-      username: "riymuh",
+    let result = await supertest(web).post("/api/register").send({
+      username: "test",
       password: "password",
-      name: "riyadh muhammad",
+      name: "test",
     });
 
-    result = await supertest(web).post("/api/users").send({
-      username: "riymuh",
+    result = await supertest(web).post("/api/register").send({
+      username: "test",
       password: "password",
-      name: "riyadh muhammad",
+      name: "test",
     });
 
     expect(result.status).toBe(400);
     expect(result.body.errros).toBeDefined;
+  });
+});
+
+describe("POST /api/login", () => {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("should can login new user", async () => {
+    const result = await supertest(web).post("/api/login").send({
+      username: "test",
+      password: "password",
+    });
+
+    logger.info(result);
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.token).toBeDefined;
   });
 });
