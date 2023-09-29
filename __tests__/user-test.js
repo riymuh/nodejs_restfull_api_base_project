@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import { web } from "../src/application/web.js";
 import { logger } from "../src/application/logging.js";
-import { removeTestUser, createTestUser } from "./test-util.js";
+import { removeTestUser, createTestUser } from "../__test_utils__/user-util.js";
 
 describe("POST /api/register", () => {
   afterEach(async () => {
