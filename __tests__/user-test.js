@@ -65,9 +65,48 @@ describe("POST /api/login", () => {
       password: "password",
     });
 
-    logger.info(result);
-
     expect(result.status).toBe(200);
     expect(result.body.data.token).toBeDefined;
+  });
+
+  it("should can't login user cause wrong password", async () => {
+    const result = await supertest(web).post("/api/login").send({
+      username: "test",
+      password: "passwordsalah",
+    });
+
+    expect(result.status).toBe(401);
+    expect(result.body.errros).toBeDefined;
+  });
+});
+
+describe("GET /api/users/current", () => {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("should can login new user", async () => {
+    const result = await supertest(web)
+      .post("/api/users/current")
+      .set("Authorization", "test");
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBeDefined;
+    expect(result.body.data.name).toBeDefined;
+  });
+
+  it("should can't login new user", async () => {
+    const result = await supertest(web)
+      .post("/api/users/current")
+      .set("Authorization", "tokensalah");
+
+    logger.info(result);
+
+    expect(result.status).toBe(401);
+    expect(result.body.errors).toBeDefined();
   });
 });
