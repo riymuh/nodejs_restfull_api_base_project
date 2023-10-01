@@ -110,3 +110,41 @@ describe("GET /api/users/current", () => {
     expect(result.body.errors).toBeDefined();
   });
 });
+
+describe("PATCH /api/users/current/update", () => {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("should can update user logged in", async () => {
+    const result = await supertest(web)
+      .patch("/api/users/current/update")
+      .set("Authorization", "test")
+      .send({
+        username: "test",
+        password: "ubahpassword",
+      });
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBeDefined;
+    expect(result.body.data.name).toBeDefined;
+  });
+
+  it("should can update user logged in", async () => {
+    const result = await supertest(web)
+      .patch("/api/users/current/update")
+      .set("Authorization", "test")
+      .send({
+        username: "test",
+        password: "ubahpassword",
+      });
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBeDefined;
+    expect(result.body.data.name).toBeDefined;
+  });
+});
