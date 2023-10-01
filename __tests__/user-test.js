@@ -1,7 +1,12 @@
 import supertest from "supertest";
 import { web } from "../src/application/web.js";
 import { logger } from "../src/application/logging.js";
-import { removeTestUser, createTestUser } from "../__test_utils__/user-util.js";
+import {
+  removeTestUser,
+  createTestUser,
+  getTestUser,
+} from "../__test_utils__/user-util.js";
+import bcrypt from "bcrypt";
 
 describe("POST /api/register", () => {
   afterEach(async () => {
@@ -111,7 +116,7 @@ describe("GET /api/users/current", () => {
   });
 });
 
-describe("PATCH /api/users/current/update", () => {
+describe("PATCH /api/users/current", () => {
   beforeEach(async () => {
     await createTestUser();
   });
@@ -122,7 +127,7 @@ describe("PATCH /api/users/current/update", () => {
 
   it("should can update user logged in", async () => {
     const result = await supertest(web)
-      .patch("/api/users/current/update")
+      .patch("/api/users/current")
       .set("Authorization", "test")
       .send({
         username: "test",
@@ -136,15 +141,37 @@ describe("PATCH /api/users/current/update", () => {
 
   it("should can update user logged in", async () => {
     const result = await supertest(web)
-      .patch("/api/users/current/update")
+      .patch("/api/users/current")
       .set("Authorization", "test")
       .send({
         username: "test",
         password: "ubahpassword",
       });
 
+    const user = await getTestUser();
+
     expect(result.status).toBe(200);
     expect(result.body.data.username).toBeDefined;
     expect(result.body.data.name).toBeDefined;
+    expect(await bcrypt.compare("ubahpassword", user.password)).toBe(true);
+  });
+});
+
+describe("DELETE /api/users/current", () => {
+  beforeEach(async () => {
+    await createTestUser();
+  });
+
+  afterEach(async () => {
+    await removeTestUser();
+  });
+
+  it("user can logout", async () => {
+    const result = await supertest(web)
+      .delete("/api/users/current")
+      .set("Authorization", "test");
+
+    expect(result.status).toBe(200);
+    expect(result.body.data.username).toBeDefined;
   });
 });

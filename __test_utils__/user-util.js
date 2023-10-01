@@ -21,4 +21,12 @@ const createTestUser = async () => {
   });
 };
 
-export { removeTestUser, createTestUser };
+const getTestUser = async () => {
+  return prismaClient.user.findFirst({
+    where: {
+      username: "test",
+    },
+  });
+};
+
+export { removeTestUser, createTestUser, getTestUser };
